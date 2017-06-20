@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using TechJobs.Models;
 using TechJobs.Data;
 using TechJobs.ViewModels;
@@ -27,19 +28,29 @@ namespace TechJobs.Controllers
         // Process search submission and display search results
         public IActionResult Results(SearchJobsViewModel jobsViewModel)
         {
-
-            if (jobsViewModel.Column.Equals(JobFieldType.All) || jobsViewModel.Value.Equals(""))
+            if (String.IsNullOrEmpty(jobsViewModel.Value))
             {
-                jobsViewModel.Jobs = jobData.FindByValue(jobsViewModel.Value);
+                return View("Index", jobsViewModel);
             }
-            else
+            if (ModelState.IsValid)
             {
-                jobsViewModel.Jobs = jobData.FindByColumnAndValue(jobsViewModel.Column, jobsViewModel.Value);
-            }
-            
-            jobsViewModel.Title = "Search";
 
-            return View("Index", jobsViewModel);
+
+
+                if (jobsViewModel.Column.Equals(JobFieldType.All) || jobsViewModel.Value.Equals(""))
+                {
+                    jobsViewModel.Jobs = jobData.FindByValue(jobsViewModel.Value);
+                }
+                else
+                {
+                    jobsViewModel.Jobs = jobData.FindByColumnAndValue(jobsViewModel.Column, jobsViewModel.Value);
+                }
+
+                jobsViewModel.Title = "Search";
+
+                return View("Index", jobsViewModel);
+            }
+            return View(jobsViewModel);
         }
     }
 }
